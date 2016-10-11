@@ -32,7 +32,7 @@ cmd:option('-content_layers', '16')
 -- Options for style reconstruction
 cmd:option('-style_weights', '5.0')
 cmd:option('-style_layers', '4,9,16,23')
-cmd:option('-style_image_size', 512)
+cmd:option('-style_image_size', 400)
 
 -- Options for DeepDream
 cmd:option('-deepdream_layers', '')
