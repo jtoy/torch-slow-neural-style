@@ -138,8 +138,8 @@ local function main()
       local ext = paths.extname(opt.output_image)
       local basename = paths.basename(opt.output_image):split('%.')[1]
       local directory = paths.dirname(opt.output_image)
-      local filename = string.format('%s/%s_%d.%s',
-                          directory, basename, f_calls, ext)
+      local filename = string.format('%s/%s.%s',
+                          directory, basename, ext)
       image.save(filename, img_out)
     end
 
