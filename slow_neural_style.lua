@@ -15,12 +15,12 @@ Perform optimization-based style transfer as described in
 local cmd = torch.CmdLine()
 
 -- Basic options
-cmd:option('-content_image', 'images/content/chicago.jpg')
-cmd:option('-style_image', 'images/styles/starry_night.jpg')
+cmd:option('-content_image', '')
+cmd:option('-style_image', '')
 cmd:option('-image_size', 512)
 
 -- Loss options
-cmd:option('-loss_network', 'models/vgg16.t7')
+cmd:option('-loss_network', '/data/data_sets/vgg16.t7')
 cmd:option('-tv_strength', 1e-6)
 cmd:option('-loss_type', 'L2', 'L2|SmoothL1')
 cmd:option('-style_target_type', 'gram', 'gram|mean')
@@ -44,7 +44,7 @@ cmd:option('-optimizer', 'lbfgs', 'lbfgs|adam')
 cmd:option('-num_iterations', 500)
 
 -- Output options
-cmd:option('-output_image', 'out.png')
+cmd:option('-output_image', '')
 cmd:option('-print_every', 1)
 cmd:option('-save_every', 50)
 
@@ -52,7 +52,7 @@ cmd:option('-save_every', 50)
 cmd:option('-preprocessing', 'vgg')
 
 -- Backend options
-cmd:option('-gpu', -1)
+cmd:option('-gpu', 1)
 cmd:option('-backend', 'cuda', 'cuda|opencl')
 cmd:option('-use_cudnn', 1)
 
@@ -66,9 +66,9 @@ local function main()
     error(string.format(msg, opt.preprocessing))
   end
   preprocess = preprocess[opt.preprocessing]
-  
+
   local dtype, use_cudnn = utils.setup_gpu(opt.gpu, opt.backend, opt.use_cudnn)
-  
+
   -- Set up the criterion
   local ok, loss_net = pcall(function() return torch.load(opt.loss_network) end)
   if not ok then
@@ -96,14 +96,14 @@ local function main()
     agg_type = opt.style_target_type,
   }
   local crit = nn.PerceptualCriterion(crit_args):type(dtype)
-  
+
   -- Set the content image
   local content_image = image.load(opt.content_image, 3)
   content_image = image.scale(content_image, opt.image_size)
   local H, W = content_image:size(2), content_image:size(3)
   content_image = preprocess.preprocess(content_image:view(1, 3, H, W))
   crit:setContentTarget(content_image:type(dtype))
-  
+
   -- Set the style image
   local style_image = image.load(opt.style_image, 3)
   style_image = image.scale(style_image, opt.style_image_size)
@@ -119,7 +119,7 @@ local function main()
   tv:type(dtype)
 
   local img = torch.randn(#content_image):type(dtype)
-  
+
   -- Callback function for optim methods
   local f_calls = 0
   local function f(x)
@@ -128,11 +128,11 @@ local function main()
     local loss = crit:forward(tv_out, {})
     local grad_tv_out = crit:updateGradInput(tv_out, {})
     local grad_x = tv:backward(x, grad_tv_out)
- 
+
     if opt.print_every > 0 and f_calls % opt.print_every == 0 then
       print(string.format('Iteration %d, loss = %f', f_calls, loss))
     end
- 
+
     if opt.save_every > 0 and f_calls % opt.save_every == 0 then
       local img_out = preprocess.deprocess(img:float())[1]
       local ext = paths.extname(opt.output_image)
@@ -142,7 +142,7 @@ local function main()
                           directory, basename, f_calls, ext)
       image.save(filename, img_out)
     end
-    
+
     return loss, grad_x:view(-1)
   end
 

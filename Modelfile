@@ -1,14 +1,25 @@
 Inference:
   command: bash inference.sh
   parameters:
-    --input:
-      flag: -input_image
+    -content_image:
+      flag: -content_image
+      type: file
+    -style_image:
+      flag: -style_image
       type: file
     -image_size:
       flag: -image_size
       type: int
-      default: 1024
-    -median_filter:
-      flag: -median_filter
-      type: int
-      default: 3
+      default: 512
+    -tv_strength:
+      flag: -tv_strength
+      type: float
+      default: 1e-6
+    -content_weights:
+      flag: -content_weights
+      type: float
+      default: 1.0
+    -style_weights:
+      flag: -style_weights
+      type: float
+      default: 5.0
