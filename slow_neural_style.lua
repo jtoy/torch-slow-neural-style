@@ -52,7 +52,7 @@ cmd:option('-save_every', 50)
 cmd:option('-preprocessing', 'vgg')
 
 -- Backend options
-cmd:option('-gpu', 1)
+cmd:option('-gpu', 0)
 cmd:option('-backend', 'cuda', 'cuda|opencl')
 cmd:option('-use_cudnn', 1)
 
